@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:24px}
+    .card{border:1px solid #ddd;border-radius:10px;padding:16px;max-width:440px}
+    input{width:100%;padding:8px;margin:6px 0}
+    button{padding:8px 14px;cursor:pointer;margin-right:8px}
+    .ok{color:#0a8f3a}.err{color:#b00020}.muted{color:#666}
+    nav a{margin-right:10px}
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/login.html">Login</a>
+    <a href="/register.html">Registro</a>
+  </nav>
+
+  <h1>Registrar usuario</h1>
+  <div id="guardMsg" class="muted"></div>
+
+  <div class="card" id="card" style="display:none">
+    <p class="muted" id="estadoSesion"></p>
+
+    <label>Nuevo usuario</label>
+    <input id="nuevoUsuario" type="text" />
+    <label>Nueva contraseña</label>
+    <input id="nuevaPass" type="password" />
+
+    <div style="margin-top:10px">
+      <button id="btnRegistrar">Registrar</button>
+      <button id="btnLogout">Cerrar sesión</button>
+    </div>
+
+    <div id="msg" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <script src="/auth.js"></script>
+  <script>
+    // Guard: si no hay sesión, redirigir a login
+    const sess = getSess();
+    if (!sess) {
+      setText('guardMsg', 'No has iniciado sesión. Redirigiendo a Login...', 'err');
+      setTimeout(() => location.href = '/login.html', 900);
+    } else {
+      document.getElementById('card').style.display = '';
+      setText('estadoSesion', `Sesión activa como: ${sess.usuarioActual}`, 'muted');
+
+      document.getElementById('btnRegistrar').addEventListener('click', async () => {
+        const usuarioNuevo = document.getElementById('nuevoUsuario').value.trim();
+        const passNueva = document.getElementById('nuevaPass').value;
+        setText('msg', 'Registrando...', 'muted');
+        try {
+          const j = await apiRegistrarAutenticado(
+            sess.usuarioActual, sess.passActual, usuarioNuevo, passNueva
+          );
+          if (j.ok) {
+            setText('msg', j.mensaje || 'Usuario creado', 'ok');
+            document.getElementById('nuevoUsuario').value = '';
+            document.getElementById('nuevaPass').value = '';
+          } else {
+            setText('msg', j.mensaje || 'No autorizado', 'err');
+          }
+        } catch(e) {
+          setText('msg', e.message, 'err');
+        }
+      });
+
+      document.getElementById('btnLogout').addEventListener('click', () => {
+        clearSess();
+        location.href = '/login.html';
+      });
+    }
+  </script>
+</body>
+</html>

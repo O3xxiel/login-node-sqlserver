@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:24px}
+    .card{border:1px solid #ddd;border-radius:10px;padding:16px;max-width:440px}
+    input{width:100%;padding:8px;margin:6px 0}
+    button{padding:8px 14px;cursor:pointer;margin-right:8px}
+    .ok{color:#0a8f3a}.err{color:#b00020}.muted{color:#666}
+    nav a{margin-right:10px}
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/login.html">Login</a>
+    <a href="/register.html">Registro</a>
+  </nav>
+
+  <h1>Login</h1>
+  <div class="card">
+    <label>Usuario</label>
+    <input id="usuario" type="text" />
+    <label>Contraseña</label>
+    <input id="contrasena" type="password" />
+    <div style="margin-top:10px">
+      <button id="btnLogin">Iniciar sesión</button>
+    </div>
+    <div id="msg" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <!-- JS compartido -->
+  <script src="/auth.js"></script>
+  <script>
+    document.getElementById('btnLogin').addEventListener('click', async () => {
+      const usuario = document.getElementById('usuario').value.trim();
+      const contrasena = document.getElementById('contrasena').value;
+
+      setText('msg', 'Validando...', 'muted');
+      try {
+        const j = await apiLogin(usuario, contrasena);
+        if (j.ok) {
+          setText('msg', j.mensaje || 'Login correcto', 'ok');
+          // Guardar “sesión” y redirigir al registro
+          setSess({ usuarioActual: usuario, passActual: contrasena });
+          setTimeout(() => location.href = '/register.html', 600);
+        } else {
+          setText('msg', j.mensaje || 'Credenciales inválidas', 'err');
+        }
+      } catch(e) {
+        setText('msg', e.message, 'err');
+      }
+    });
+
+    // Si ya hay sesión, ir directo a registro
+    if (getSess()) location.href = '/register.html';
+  </script>
+</body>
+</html>
