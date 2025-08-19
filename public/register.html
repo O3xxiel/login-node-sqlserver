@@ -15,7 +15,7 @@
 </head>
 <body>
   <nav>
-    <a href="/login.html">Login</a>
+    <a href="/">Login</a>              <!-- 👈 usar / -->
     <a href="/register.html">Registro</a>
   </nav>
 
@@ -40,11 +40,11 @@
 
   <script src="/auth.js"></script>
   <script>
-    // Guard: si no hay sesión, redirigir a login
+    // 🔒 Guard: si no hay sesión, redirige al login ("/")
     const sess = getSess();
     if (!sess) {
       setText('guardMsg', 'No has iniciado sesión. Redirigiendo a Login...', 'err');
-      setTimeout(() => location.href = '/login.html', 900);
+      setTimeout(() => location.href = '/', 900);  // 👈 aquí cambiamos a "/"
     } else {
       document.getElementById('card').style.display = '';
       setText('estadoSesion', `Sesión activa como: ${sess.usuarioActual}`, 'muted');
@@ -71,7 +71,7 @@
 
       document.getElementById('btnLogout').addEventListener('click', () => {
         clearSess();
-        location.href = '/login.html';
+        location.href = '/'; // 👈 volver al login (index)
       });
     }
   </script>
